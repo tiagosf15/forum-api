@@ -5,13 +5,34 @@ import { User, Prisma } from '../generated/prisma/client';
 import * as bcrypt from 'bcrypt';
 @Injectable()
 export class UserService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async user(
     userWhereUniqueInput: Prisma.UserWhereUniqueInput,
-  ): Promise<User | null> {
+  ): Promise<Omit<User, 'password'> | null> {
     return this.prisma.user.findUnique({
       where: userWhereUniqueInput,
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        password: false,
+        createdAt: true,
+        updatedAt: true,
+        question: {
+          select: {
+            id: true,
+            title: true,
+            body: true
+          }
+        },
+        answers: {
+          select: {
+            id: true,
+            body: true
+          }
+        }
+      }
     });
   }
 
@@ -38,6 +59,14 @@ export class UserService {
       data: {
         ...data,
         password: hash,
+        question: {
+          create: [
+            {
+              title: 'Sample Question 1',
+              body: 'This is a sample question body.',
+            }
+          ]
+        }
       },
     });
   }

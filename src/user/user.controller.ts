@@ -31,7 +31,7 @@ export class UserController {
 
   @Get(':id')
   @UseGuards(AuthGuard)
-  async getUserById(@Param('id') id: string) {
+  async getUserById(@Param('id') id: string): Promise<Omit<User, 'password'> | null> {
     return this.userService.user({ id: Number(id) });
   }
 
